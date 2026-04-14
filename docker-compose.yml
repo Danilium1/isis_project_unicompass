@@ -1,0 +1,13 @@
+name: unicompass-mvp
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unicompass-mvp-app
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./unicompass.db:/app/unicompass.db
+    restart: unless-stopped
