@@ -27,6 +27,8 @@ async function refreshAdminLink(){
     document.querySelectorAll('.admin-only').forEach(el=> el.style.display = 'none');
     return;
   }
+  // hide admin controls until role is confirmed
+  document.querySelectorAll('.admin-only').forEach(el=> el.style.display = 'none');
   try{
     const res = await fetch(API_BASE + '/user/me', { headers: { 'Authorization': 'Bearer ' + token } });
     if(!res.ok){
@@ -132,7 +134,12 @@ async function loadTasks(){
   el.innerHTML = list.map(t=>`<div class="card"><strong>${t.title}</strong><div class="small">${t.description || ''}</div></div>`).join('');
 }
 async function seedTasks(){
-  const res = await fetch(API_BASE + '/task/seed', { method:'POST' });
+  const token = getToken();
+  if(!token){ alert('Not logged in'); return }
+  const res = await fetch(API_BASE + '/task/seed', {
+    method:'POST',
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
   if(!res.ok) { alert('Seed failed'); return }
   const data = await res.json();
   alert('Seeded ' + data.length + ' tasks');

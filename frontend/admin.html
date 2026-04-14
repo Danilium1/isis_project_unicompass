@@ -28,6 +28,18 @@
 
   <main class="container">
     <h2>Admin — manage users</h2>
+    <div class="card" style="margin-bottom:12px">
+      <h3 style="margin-top:0">Create task</h3>
+      <div class="form-row">
+        <input id="new-task-title" class="input" placeholder="Task title" />
+      </div>
+      <div class="form-row">
+        <input id="new-task-description" class="input" placeholder="Task description" />
+      </div>
+      <div class="form-row">
+        <button class="button" onclick="createTaskManual()">Create task</button>
+      </div>
+    </div>
     <div id="admin-root">Loading...</div>
   </main>
 
@@ -53,6 +65,34 @@
         </div>
       `).join('');
     }
+
+    async function createTaskManual(){
+      const title = (document.getElementById('new-task-title').value || '').trim();
+      const description = (document.getElementById('new-task-description').value || '').trim();
+      const token = getToken();
+      if(!token){ alert('Not logged in'); return; }
+      if(!title){ alert('Title is required'); return; }
+
+      const res = await fetch('/task/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify({ title, description: description || null })
+      });
+
+      if(!res.ok){
+        alert('Create task failed');
+        return;
+      }
+
+      document.getElementById('new-task-title').value = '';
+      document.getElementById('new-task-description').value = '';
+      alert('Task created');
+      loadAdmin();
+    }
+
     async function assignTo(userId){
       const sel = document.getElementById('task-select-'+userId);
       const taskId = sel.value;
