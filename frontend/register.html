@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Регистрация — UniCompass</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">UniCompass</div>
+    <nav>
+      <a href="index.html">Главная</a>
+      <a href="register.html">Регистрация</a>
+      <a href="profile.html">Личный профиль</a>
+      <a href="tasks.html">Задачи</a>
+    </nav>
+    <div class="nav-right">
+      <div id="token-badge" class="token-badge">not logged</div>
+      <a id="admin-link" href="/admin.html" class="button auth-only hidden" style="display:none">Admin Panel</a>
+      <form id="header-login-form" style="display:inline-flex; gap:8px; align-items:center">
+        <input id="header-email" placeholder="email" class="input" style="width:150px" />
+        <input id="header-password" placeholder="pass" type="password" class="input" style="width:120px" />
+        <button class="button" type="submit">Login</button>
+      </form>
+      <button class="button auth-only" onclick="logout()" style="display:none">Logout</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Регистрация</h2>
+    <form onsubmit="registerForm(event)">
+      <div class="form-row">
+        <input id="r-first" class="input" placeholder="First name" required>
+        <input id="r-last" class="input" placeholder="Last name" required>
+      </div>
+      <div class="form-row">
+        <input id="r-email" class="input" type="email" placeholder="Email" required>
+      </div>
+      <div class="form-row">
+        <input id="r-pass" class="input" type="password" placeholder="Password" required>
+      </div>
+      <div class="form-row">
+        <button class="button" type="submit">Register</button>
+      </div>
+    </form>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

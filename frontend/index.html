@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UniCompass - Главная</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">UniCompass</div>
+      <nav>
+      <a href="index.html">Главная</a>
+      <a href="register.html">Регистрация</a>
+      <a href="profile.html">Личный профиль</a>
+      <a href="tasks.html">Задачи</a>
+    </nav>
+    <div class="nav-right">
+      <div id="token-badge" class="token-badge">not logged</div>
+      <a id="admin-link" href="/admin.html" class="button auth-only hidden" style="display:none">Admin Panel</a>
+      <form id="header-login-form" style="display:inline-flex; gap:8px; align-items:center">
+        <input id="header-email" placeholder="email" class="input" style="width:150px" />
+        <input id="header-password" placeholder="pass" type="password" class="input" style="width:120px" />
+        <button class="button" type="submit">Login</button>
+      </form>
+      <button class="button secondary anon-only" onclick="location.href='register.html'">Sign up</button>
+      <button class="button auth-only" onclick="logout()" style="display:none">Logout</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Главная</h2>
+    <p>Добро пожаловать в минимальный фронтенд для MVP. Навигация в шапке.</p>
+    <div class="card">
+      <p class="small">Подсказки:</p>
+      <ul>
+        <li>Зарегистрируйтесь на странице <a href="register.html">Регистрация</a></li>
+        <li>Войдите через шапку, чтобы открыть <a href="profile.html">Профиль</a></li>
+        <li>На странице <a href="tasks.html">Задачи</a> можно создать заранее подготовленные задачи</li>
+      </ul>
+    </div>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

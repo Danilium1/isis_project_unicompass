@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — UniCompass</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">UniCompass</div>
+    <nav>
+      <a href="index.html">Главная</a>
+      <a href="register.html">Регистрация</a>
+      <a href="profile.html">Личный профиль</a>
+      <a href="tasks.html">Задачи</a>
+    </nav>
+    <div class="nav-right">
+      <div id="token-badge" class="token-badge">not logged</div>
+      <form id="header-login-form" style="display:inline-flex; gap:8px; align-items:center">
+        <input id="header-email" placeholder="email" class="input" style="width:150px" />
+        <input id="header-password" placeholder="pass" type="password" class="input" style="width:120px" />
+        <button class="button" type="submit">Login</button>
+      </form>
+      <button class="button auth-only" onclick="logout()" style="display:none">Logout</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Admin — manage users</h2>
+    <div id="admin-root">Loading...</div>
+  </main>
+
+  <script src="./app.js"></script>
+  <script>
+    async function loadAdmin(){
+      const token = getToken();
+      if(!token){ document.getElementById('admin-root').innerHTML='Not logged in'; return }
+      const res = await fetch('/admin/users', { headers:{ 'Authorization': 'Bearer '+token } });
+      if(!res.ok){ document.getElementById('admin-root').innerHTML='Forbidden or error'; return }
+      const users = await res.json();
+      const tasksRes = await fetch('/task/');
+      const tasks = tasksRes.ok ? await tasksRes.json() : [];
+      document.getElementById('admin-root').innerHTML = users.map(u=>`
+        <div class="card">
+          <strong>${u.first_name} ${u.last_name} ${u.is_admin? '(admin)':''}</strong>
+          <div class="small">email: ${u.email}</div>
+          <div style="margin-top:8px">
+            <label>Assign task:</label>
+            <select id="task-select-${u.id}">${tasks.map(t=>`<option value="${t.id}">${t.title}</option>`).join('')}</select>
+            <button class="button" onclick="assignTo(${u.id})">Assign</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    async function assignTo(userId){
+      const sel = document.getElementById('task-select-'+userId);
+      const taskId = sel.value;
+      const token = getToken();
+      const res = await fetch('/admin/assign?student_id='+userId+'&task_id='+taskId, { method:'POST', headers:{ 'Authorization':'Bearer '+token }});
+      if(!res.ok){ alert('Assign failed'); return }
+      alert('Assigned');
+    }
+    window.addEventListener('DOMContentLoaded', loadAdmin);
+  </script>
+</body>
+</html>
