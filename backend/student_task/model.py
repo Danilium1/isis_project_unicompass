@@ -14,8 +14,8 @@ class StudentTask(Base):
 	status = Column(String(50), nullable=True)
 	completed_at = Column(DateTime, nullable=True)
 
-	student = relationship("backend.user.model.Student", back_populates="student_tasks")
-	task = relationship("backend.task.model.Task", back_populates="student_tasks")
+	student = relationship("Student", back_populates="student_tasks")
+	task = relationship("Task", back_populates="student_tasks")
 
 	def __repr__(self):
 		return f"<StudentTask id={self.id} student_id={self.student_id} task_id={self.task_id}>"

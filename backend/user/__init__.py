@@ -1,3 +1,1 @@
-from .router import router
-
-__all__ = ["router"]
+# Package marker. Keep empty to avoid import side effects/cycles.

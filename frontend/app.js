@@ -12,7 +12,7 @@ function refreshAuthUI(){
   document.querySelectorAll('.auth-only').forEach(el=>el.style.display = token ? 'inline-flex' : 'none');
   document.querySelectorAll('.anon-only').forEach(el=>el.style.display = token ? 'none' : 'inline-flex');
   const badge = document.getElementById('token-badge');
-  if(badge) badge.textContent = token ? 'token: OK' : 'not logged';
+  if(badge) badge.textContent = token ? 'token: checking...' : 'not logged';
 }
 
 // update admin link visibility by checking /user/me when token exists
@@ -20,16 +20,39 @@ async function refreshAdminLink(){
   const token = getToken();
   const adminLink = document.getElementById('admin-link');
   if(!adminLink) return;
-  if(!token){ adminLink.style.display = 'none'; return }
+  const badge = document.getElementById('token-badge');
+  if(!token){
+    adminLink.style.display = 'none';
+    if(badge) badge.textContent = 'not logged';
+    document.querySelectorAll('.admin-only').forEach(el=> el.style.display = 'none');
+    return;
+  }
   try{
     const res = await fetch(API_BASE + '/user/me', { headers: { 'Authorization': 'Bearer ' + token } });
-    if(!res.ok){ adminLink.style.display = 'none'; return }
+    if(!res.ok){
+      // token invalid -> clear and update UI
+      try{ localStorage.removeItem('token'); }catch(e){}
+      if(badge) badge.textContent = 'invalid token';
+      document.querySelectorAll('.auth-only').forEach(el=>el.style.display = 'none');
+      document.querySelectorAll('.anon-only').forEach(el=>el.style.display = 'inline-flex');
+      document.querySelectorAll('.admin-only').forEach(el=> el.style.display = 'none');
+      adminLink.style.display = 'none';
+      return;
+    }
     const user = await res.json();
+    if(badge) badge.textContent = 'token: OK';
     if(user.is_admin){ adminLink.style.display = 'inline-flex'; }
     else { adminLink.style.display = 'none'; }
     // show/hide admin-only elements
     document.querySelectorAll('.admin-only').forEach(el=> el.style.display = user.is_admin ? 'inline-flex' : 'none');
-  }catch(err){ adminLink.style.display = 'none'; }
+    // ensure auth/anon visibility consistent
+    document.querySelectorAll('.auth-only').forEach(el=>el.style.display = 'inline-flex');
+    document.querySelectorAll('.anon-only').forEach(el=>el.style.display = 'none');
+  }catch(err){
+    adminLink.style.display = 'none';
+    if(badge) badge.textContent = 'invalid token';
+    document.querySelectorAll('.admin-only').forEach(el=> el.style.display = 'none');
+  }
 }
 
 async function loginFromHeader(e){
@@ -101,8 +124,10 @@ async function saveProfile(userId){
 async function loadTasks(){
   const el = document.getElementById('tasks-root');
   el.innerHTML = '<p class="small">Loading...</p>';
-  const res = await fetch(API_BASE + '/task/');
-  if(!res.ok){ el.innerHTML='Failed'; return }
+  const token = getToken();
+  if(!token){ el.innerHTML = '<p class="small">Login as admin to view tasks</p>'; return }
+  const res = await fetch(API_BASE + '/task/', { headers: { 'Authorization': 'Bearer ' + token } });
+  if(!res.ok){ el.innerHTML='Failed or forbidden'; return }
   const list = await res.json();
   el.innerHTML = list.map(t=>`<div class="card"><strong>${t.title}</strong><div class="small">${t.description || ''}</div></div>`).join('');
 }

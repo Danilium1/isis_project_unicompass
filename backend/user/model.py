@@ -20,7 +20,7 @@ class Student(Base):
 	is_admin = Column(Boolean, default=False, nullable=False)
 
 	student_tasks = relationship(
-		"backend.student_task.model.StudentTask",
+		"StudentTask",
 		back_populates="student",
 		cascade="all, delete-orphan",
 	)

@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, configure_mappers
+import importlib
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./unicompass.db"
 
@@ -21,23 +22,19 @@ def get_db():
 
 # Create tables (imports of models will register them with Base)
 def init_db():
-	# import model modules so they register with Base before creating tables
-	try:
-		import backend.user.model  # noqa: F401
-		import backend.task.model  # noqa: F401
-		import backend.student_task.model  # noqa: F401
-	except Exception:
-		# if imports fail, proceed; create_all will still work for already-registered models
-		pass
+	# Import model modules explicitly so all mappers are registered before first query.
+	importlib.import_module("backend.user.model")
+	importlib.import_module("backend.task.model")
+	importlib.import_module("backend.student_task.model")
+	configure_mappers()
 
 	Base.metadata.create_all(bind=engine)
 
 	# create default admin user if missing
-	try:
-		from backend.user import model as user_model
-		from sqlalchemy.orm import Session
+	from backend.user import model as user_model
 
-		db = SessionLocal()
+	db = SessionLocal()
+	try:
 		admin = db.query(user_model.Student).filter(user_model.Student.email == "admin@gmail.com").first()
 		if not admin:
 			admin_user = user_model.Student(
@@ -49,10 +46,5 @@ def init_db():
 			)
 			db.add(admin_user)
 			db.commit()
+	finally:
 		db.close()
-	except Exception:
-		pass
-
-
-# Auto-initialize DB on import (safe for development MVP)
-init_db()

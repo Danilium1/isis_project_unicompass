@@ -10,7 +10,7 @@ class Task(Base):
 	description = Column(Text, nullable=True)
 
 	student_tasks = relationship(
-		"backend.student_task.model.StudentTask",
+		"StudentTask",
 		back_populates="task",
 		cascade="all, delete-orphan",
 	)

@@ -39,7 +39,7 @@
       const res = await fetch('/admin/users', { headers:{ 'Authorization': 'Bearer '+token } });
       if(!res.ok){ document.getElementById('admin-root').innerHTML='Forbidden or error'; return }
       const users = await res.json();
-      const tasksRes = await fetch('/task/');
+      const tasksRes = await fetch('/task/', { headers: { 'Authorization': 'Bearer ' + token } });
       const tasks = tasksRes.ok ? await tasksRes.json() : [];
       document.getElementById('admin-root').innerHTML = users.map(u=>`
         <div class="card">
