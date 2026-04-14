@@ -41,18 +41,32 @@
       </div>
     </div>
     <div id="admin-root">Loading...</div>
+
+    <h3 style="margin-top:20px">Students and tasks progress</h3>
+    <div id="assignments-root">Loading...</div>
   </main>
 
   <script src="./app.js"></script>
   <script>
     async function loadAdmin(){
       const token = getToken();
-      if(!token){ document.getElementById('admin-root').innerHTML='Not logged in'; return }
+      if(!token){
+        document.getElementById('admin-root').innerHTML='Not logged in';
+        document.getElementById('assignments-root').innerHTML='Not logged in';
+        return;
+      }
+
       const res = await fetch('/admin/users', { headers:{ 'Authorization': 'Bearer '+token } });
-      if(!res.ok){ document.getElementById('admin-root').innerHTML='Forbidden or error'; return }
+      if(!res.ok){
+        document.getElementById('admin-root').innerHTML='Forbidden or error';
+        document.getElementById('assignments-root').innerHTML='Forbidden or error';
+        return;
+      }
+
       const users = await res.json();
       const tasksRes = await fetch('/task/', { headers: { 'Authorization': 'Bearer ' + token } });
       const tasks = tasksRes.ok ? await tasksRes.json() : [];
+
       document.getElementById('admin-root').innerHTML = users.map(u=>`
         <div class="card">
           <strong>${u.first_name} ${u.last_name} ${u.is_admin? '(admin)':''}</strong>
@@ -61,6 +75,44 @@
             <label>Assign task:</label>
             <select id="task-select-${u.id}">${tasks.map(t=>`<option value="${t.id}">${t.title}</option>`).join('')}</select>
             <button class="button" onclick="assignTo(${u.id})">Assign</button>
+          </div>
+        </div>
+      `).join('');
+
+      const reportRes = await fetch('/admin/student-tasks', { headers:{ 'Authorization': 'Bearer '+token } });
+      if(!reportRes.ok){
+        document.getElementById('assignments-root').innerHTML = 'Failed to load report';
+        return;
+      }
+
+      const rows = await reportRes.json();
+      renderStudentTaskReport(rows);
+    }
+
+    function renderStudentTaskReport(rows){
+      const root = document.getElementById('assignments-root');
+      if(!rows || !rows.length){
+        root.innerHTML = '<p class="small">No students or tasks yet</p>';
+        return;
+      }
+
+      const byStudent = {};
+      for(const row of rows){
+        const key = row.student_id;
+        if(!byStudent[key]) byStudent[key] = { name: row.student_name, email: row.student_email, items: [] };
+        byStudent[key].items.push(row);
+      }
+
+      root.innerHTML = Object.values(byStudent).map(student => `
+        <div class="card">
+          <strong>${student.name}</strong>
+          <div class="small">email: ${student.email}</div>
+          <div style="margin-top:8px">
+            ${student.items.map(item => `
+              <div class="small">
+                ${item.task_title} — ${item.is_completed ? 'выполнено' : (item.status === 'not assigned' ? 'не назначено' : 'не выполнено')}
+              </div>
+            `).join('')}
           </div>
         </div>
       `).join('');
@@ -100,6 +152,7 @@
       const res = await fetch('/admin/assign?student_id='+userId+'&task_id='+taskId, { method:'POST', headers:{ 'Authorization':'Bearer '+token }});
       if(!res.ok){ alert('Assign failed'); return }
       alert('Assigned');
+      loadAdmin();
     }
     window.addEventListener('DOMContentLoaded', loadAdmin);
   </script>
