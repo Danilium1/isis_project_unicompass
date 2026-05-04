@@ -28,11 +28,12 @@ def create_student_task(payload: st_schemas.StudentTaskCreate, db: Session = Dep
 
     student_id = payload.student_id or current_user.id
 
+    default_deadline = datetime(2026, 11, 1)
     db_obj = st_model.StudentTask(
         student_id=student_id,
         task_id=payload.task_id,
-        deadline=payload.deadline,
-        status=payload.status,
+        deadline=payload.deadline or default_deadline,
+        status=payload.status or "assigned",
         completed_at=payload.completed_at,
     )
     db.add(db_obj)

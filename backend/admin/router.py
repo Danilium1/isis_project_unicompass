@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -38,7 +39,13 @@ def assign_task_to_student(student_id: int, task_id: int, current_user: user_mod
     task = db.query(task_model.Task).filter(task_model.Task.id == task_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    st = st_model.StudentTask(student_id=student_id, task_id=task_id)
+    default_deadline = datetime(2026, 11, 1)
+    st = st_model.StudentTask(
+        student_id=student_id,
+        task_id=task_id,
+        deadline=default_deadline,
+        status="assigned",
+    )
     db.add(st)
     db.commit()
     db.refresh(st)
