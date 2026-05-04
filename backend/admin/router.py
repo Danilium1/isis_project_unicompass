@@ -8,6 +8,7 @@ from backend.user import model as user_model, schemas as user_schemas
 from backend.task import model as task_model
 from backend.student_task import model as st_model
 from backend.user.router import get_current_user
+from backend.integrations.twenty import create_zadacha_studenta_record
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -41,6 +42,7 @@ def assign_task_to_student(student_id: int, task_id: int, current_user: user_mod
     db.add(st)
     db.commit()
     db.refresh(st)
+    create_zadacha_studenta_record(st)
     return {"detail": "assigned", "id": st.id}
 
 
