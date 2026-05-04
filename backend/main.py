@@ -1,10 +1,13 @@
 from fastapi import FastAPI
+from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 from backend.db import init_db
 from backend.user.router import router as user_router
 from backend.task.router import router as task_router
 from backend.student_task.router import router as student_task_router
 from backend.admin.router import router as admin_router
+
+load_dotenv()
 
 app = FastAPI(title="unicompass")
 

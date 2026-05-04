@@ -9,6 +9,7 @@ from backend.student_task import model as st_model, schemas as st_schemas
 from backend.user import model as user_model
 from backend.task import model as task_model
 from backend.user.router import get_current_user
+from backend.integrations.twenty import create_zadacha_studenta_record
 
 
 router = APIRouter(prefix="/student_task", tags=["student_task"])
@@ -37,6 +38,7 @@ def create_student_task(payload: st_schemas.StudentTaskCreate, db: Session = Dep
     db.add(db_obj)
     db.commit()
     db.refresh(db_obj)
+    create_zadacha_studenta_record(db_obj)
     return db_obj
 
 
